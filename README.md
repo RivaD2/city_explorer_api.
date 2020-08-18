@@ -1,4 +1,4 @@
-# city_explorer_api.
+# city_explorer_api. Heroku Link: https://dashboard.heroku.com/apps/riva-cityexplorer/deploy/github
 
 Number and name of feature: Feature 1: 2 routes created with method .get(), 2 constructor functions for location and weather
 
