@@ -1,6 +1,49 @@
 # city_explorer_api.
 
+Number and name of feature: Feature 1: 2 routes created with method .get(), 2 constructor functions for location and weather
 
+Estimate of time needed to complete: Over 3 hrs
+
+Start time:2:45
+
+Finish time: 6:00
+
+----
+
+Number and name of feature: Feature 2: Add an environment variable to our server for location and weather
+
+Estimate of time needed to complete: 2 hrs
+
+Start time: 2:56pm
+
+Finish time: 4:56
+
+Actual time needed to complete: 2hrs
+
+---
+Number and name of feature: Feature 3: Implementing error handling using .catch in our 
+
+Estimate of time needed to complete:  30min
+
+Start time: 5:00pm
+
+Finish time: 5:30pm
+
+Actual time needed to complete: 1hr
+
+---
+Number and name of feature: Feature 4: Create a 3rd route of trails with the method of get
+
+Estimate of time needed to complete:  
+
+Start time: 
+
+Finish time: 
+
+Actual time needed to complete: 
+--------
+
+Actual time needed to complete: 
 # city_explorer_api
 
 **Author**: Riva
