@@ -1,8 +1,10 @@
-# city_explorer_api. 
+# Project name: city_explorer_api. 
 
-Heroku Link: [Heroku](https://dashboard.heroku.com/apps/riva-cityexplorer/deploy/github)
+# Heroku Link: [Heroku](https://dashboard.heroku.com/apps/riva-cityexplorer/deploy/github)
 
-Number and name of feature: Feature 1: 2 routes created with method .get(), 2 constructor functions for location and weather
+----------
+
+# Number and name of feature: Feature 1: Created two routes with method .get() and two constructor functions for location and weather
 
 Estimate of time needed to complete: Over 3 hrs
 
@@ -12,7 +14,7 @@ Finish time: 6:00
 
 ----
 
-Number and name of feature: Feature 2: Add an environment variable to our server for location and weather
+# Number and name of feature: Feature 2: Added an environment variable to our server for location and weather
 
 Estimate of time needed to complete: 2 hrs
 
@@ -23,26 +25,39 @@ Finish time: 4:56
 Actual time needed to complete: 2hrs
 
 ---
-Number and name of feature: Feature 3: Implementing error handling using .catch in our 
+# Number and name of feature: Feature 3: Implemented error handling function
 
-Estimate of time needed to complete:  30min
+Estimate of time needed to complete:  20min
 
 Start time: 5:00pm
 
 Finish time: 5:30pm
 
-Actual time needed to complete: 1hr
+Actual time needed to complete: 30min
 
 ---
-Number and name of feature: Feature 4: Create a 3rd route of trails with the method of get
+# Number and name of feature: Feature 4: Created a 3rd route of trails with the method of get
 
-Estimate of time needed to complete:  
+Estimate of time needed to complete:  1hr
+
+Start time: 5:30pm
+
+Finish time: 6:23pm
+
+Actual time needed to complete: under an hr
+
+---
+
+Number and name of feature: 
+
+Estimate of time needed to complete:
 
 Start time: 
 
 Finish time: 
 
 Actual time needed to complete: 
+
 --------
 
 Actual time needed to complete: 
