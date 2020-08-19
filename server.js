@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 const GEOCODE = process.env.GEOCODE_API_KEY;
 const MASTER_KEY = process.env.MASTER_API_KEY;
-
+const TRAIL_KEY = process.env.TRAIL_API_KEY;
 
 
 //routes
@@ -50,10 +50,28 @@ app.get('/weather', (req, res) => {
       res.send(superAgentArrayWeather);
     })
     .catch(error => {
-      console.log(error);
       res.status(500).send(error, 'Bad Request, Internal Server Error');
     });
 });
+
+
+app.get('/trails', (req, res) => {
+  const latitude = req.query.latitude;
+  const longitude = req.query.longitude;
+  const api = `https://www.hikingproject.com/data/get-trails?&lat=${latitude}&lon=${longitude}&maxDistance=10&key=${TRAIL_KEY}`;
+  superagent.get(api)
+    .then(dataReturn => {
+      // talk to TA about formatting and how to find body.trails (what is the best way to format the dataReturn.body);
+      const superAgentArrayTrail = dataReturn.body.trails.map(res => {
+        return new Trail(res);
+      });
+      res.send(superAgentArrayTrail);
+    })
+    .catch(error => {
+      res.status(500).send(error, 'Bad Request, Internal Server Error');
+    });
+});
+
 
 
 //CONSTRUCTORS // iterate using .map today
@@ -70,6 +88,11 @@ function Weather(weatherJson) {
   this.time = weatherJson.valid_date;
 }
 
+function Trail(obj) {
+  this.name = obj.name;
+  this.length = obj.length;
+  this.summary = obj.summary;
+}
 
 //start the server
 
