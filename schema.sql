@@ -20,3 +20,5 @@ longitude VARCHAR(255)
 -- length VARCHAR(255),
 -- summary INTEGER,
 -- );
+
+INSERT INTO locations (search_query, formatted_query,latitude, longitude) VALUES ('seattle', 'Seattle, WA', '47', '-122' );

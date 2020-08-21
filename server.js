@@ -9,7 +9,6 @@ const pg = require('pg');
 // global vars
 const PORT = process.env.PORT || 3003;
 const app = express();
-app.use(cors());
 const GEOCODE = process.env.GEOCODE_API_KEY;
 const MASTER_KEY = process.env.MASTER_API_KEY;
 const TRAIL_KEY = process.env.TRAIL_API_KEY;
@@ -19,43 +18,60 @@ const DATABASE_URL = process.env.DATABASE_URL;
 //library that allows js to talk to pg
 // this will help us run commands back and forth to database
 // we created the client and we told the client to tell us when an error occurs
+app.use(cors());
 const client = new pg.Client(DATABASE_URL);
 client.on('error', error => console.error(error));
 
 
 //************************ROUTE ONE*/
 app.get('/location',(req, res) => {
-  // The request parameter for endpoint's callback contains infor from frontend in request.query
+  // The request parameter for endpoint's callback contains info from frontend in request.query
   // request.query contains all query info in any app
   //console.log(request.query.city:request.query.city);
   const thingToSearch = req.query.city; // this would be the city
-
+  const apiLink = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE}&q=${thingToSearch}&format=json`;
+  //this will come from request.query so use api with $request.query.latitude
 
   //call database function here
   //if else statement here that would include the api
-  if (checkLocationInformation === undefined) {
-    checkLocationInformation(thingToSearch);
+
+
+  // this function will return data from database or null
+  // If response from database is not null, then we get a response, if null, nothing (falsy)
+  const responseFromDatabase = checkLocationInformation(thingToSearch);
+  if (responseFromDatabase) {
+    console.log(responseFromDatabase);
+    const storedResult = responseFromDatabase.rows[0];
+    res.send(storedResult);
   } else {
-    client.query(thingToSearch); //with the object from the function call
-    console.log(thingToSearch);
+    superagent.get(apiLink)
+      .then(whateverComesBack => {
+        const superAgentResultArray = whateverComesBack.body;
+        const locationConstructor = new Location(superAgentResultArray, thingToSearch);
+        //need to save the information from API to database before responding
+        const sql = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES($1, $2, $3, $4)`;
+        const valuesofLocationObj = [locationConstructor.search_query, locationConstructor.formatted_query, locationConstructor.latitude, locationConstructor.longitude];
+        client.query(sql, valuesofLocationObj)
+        //don't want to send response until it is in the database
+          .then(()=>{
+            res.send(locationConstructor);
+          });
+
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).send(error, 'Bad Request, Internal Server Error');
+      });
   }
-  const apiLink = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE}&q=${thingToSearch}&format=json`;
-  //this will come from request.query so use api with $request.query.latitude
-  superagent.get(apiLink) 
-    .then(whateverComesBack => { 
-      const superAgentResultArray = whateverComesBack.body; //use token here along with console.log the body
-      const locationConstructor = new Location(superAgentResultArray);
-      res.send(locationConstructor);
-    })
-    .catch(error => {
-      console.log(error);
-      res.status(500).send(error, 'Bad Request, Internal Server Error');
-    });
+  client.query(thingToSearch); //with the object from the function call
 });
+
+
 
 //catch happens after promise and only gets triggered if result of promise is error
 
 /******************************ROUTE TWO*/
+
 app.get('/weather', (req, res) => {
   const lat = req.query.latitude;
   const lon = req.query.longitude;
@@ -92,8 +108,17 @@ app.get('/trails', (req, res) => {
     });
 });
 
+/*********************************ROUTE FOUR */
 
-//ADD function to check the database for the location information
+// app.get('/movies', getMovies);
+// function getMovies (req, res) {
+//   res.send();
+// }
+
+
+
+
+//Function to check the database for the location information
 
 function checkLocationInformation (str) {
   console.log(str);
@@ -104,22 +129,27 @@ function checkLocationInformation (str) {
     .then(sendObj => {
       console.log(sendObj);
       //rowCount is built into SQL
-      if(sendObj.rowCount > 0); {
-        //want to return sendObject.rows[0] since Rows in the database in an array
+      if(sendObj.rowCount > 0) {
+        //want to return sendObject.rows[0] since Rows in the database in an arra
         return (sendObj.rows[0]);
+      } else {
+        return null;
       }
     })
     .catch(error => {
       console.error(error);
     });
 }
-//checkLocationInformation();
+
+
 
 
 /*****************************CONSTRUCTORS*/
 
-function Location(obj) { // our constructor only uses index 0
-  this.search_query = obj[0].icon; // how do we get this out of our location.json
+function Location(obj, thingToSearch) { // our constructor only uses index 0
+  // LocationsIQ doesn't send back the searchQuery or what the user typed in
+  // we used thingToSearch which is what the customer typed in, and passed in through the constructor
+  this.search_query = thingToSearch; // how do we get this out of our location.json
   this.formatted_query = obj[0].display_name;
   this.latitude = obj[0].lat;
   this.longitude = obj[0].lon;
