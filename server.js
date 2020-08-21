@@ -113,6 +113,7 @@ app.get('/trails', (req, res) => {
 app.get('/yelp',(req, res) => {
   const searchToYelp = req.query.search_query; // this would be the city
   const yelpApi = `https://api.yelp.com/v3/businesses/search?location=${searchToYelp}&start=20`;
+  // Credit to Amelia for the .set (Amelia helped to realize the header)
   superagent.get(yelpApi).set('Authorization', `Bearer ${YELP_API_KEY}`)
     .then(infoFromYelpReturn => {
       console.log(searchToYelp);
@@ -127,6 +128,7 @@ app.get('/yelp',(req, res) => {
     });
 });
 
+/****************************ROUTE FIVE */
 
 // app.get('/movies', getMovies);
 // function getMovies (req, res) {
