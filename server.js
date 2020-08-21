@@ -13,6 +13,7 @@ const GEOCODE = process.env.GEOCODE_API_KEY;
 const MASTER_KEY = process.env.MASTER_API_KEY;
 const TRAIL_KEY = process.env.TRAIL_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
+const YELP_API_KEY = process.env.YELP_API_KEY;
 
 
 //library that allows js to talk to pg
@@ -109,6 +110,23 @@ app.get('/trails', (req, res) => {
 });
 
 /*********************************ROUTE FOUR */
+app.get('/yelp',(req, res) => {
+  const searchToYelp = req.query.search_query; // this would be the city
+  const yelpApi = `https://api.yelp.com/v3/businesses/search?location=${searchToYelp}&start=20`;
+  superagent.get(yelpApi).set('Authorization', `Bearer ${YELP_API_KEY}`)
+    .then(infoFromYelpReturn => {
+      console.log(searchToYelp);
+      const yelpArray = infoFromYelpReturn.body.businesses.map( res => {
+        console.log(infoFromYelpReturn.body);
+        return new Yelp(res);
+      });
+      res.send(yelpArray);
+    })
+    .catch(error => {
+      res.status(500).send(error, 'Bad Request, Internal Server Error');
+    });
+});
+
 
 // app.get('/movies', getMovies);
 // function getMovies (req, res) {
@@ -164,6 +182,14 @@ function Trail(obj) {
   this.name = obj.name;
   this.length = obj.length;
   this.summary = obj.summary;
+}
+
+function Yelp(yelpData) {
+  this.name = yelpData.name;
+  this.url = yelpData.url;
+  this.rating = yelpData.rating;
+  this.price = yelpData.price;
+  this.image_url = yelpData.image_url;
 }
 
 /*************************STARTSERVER*/
