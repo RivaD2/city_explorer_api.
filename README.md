@@ -48,11 +48,23 @@ Actual time needed to complete: under an hr
 
 ---
 
-Number and name of feature: 
+# Number and name of feature: Feature 5: Created a function to check the database for the location information.
 
-Estimate of time needed to complete:
+Estimate of time needed to complete: 2hrs
 
-Start time: 
+Start time: 3:30pm
+
+Finish time: 5:50pm
+
+Actual time needed to complete: 2hrs20min
+
+--------
+
+# Number and name of feature: Feature 6: Created a fourth route with a method of get and a path of /yelp. 
+
+Estimate of time needed to complete: 2hrs
+
+Start time: 5:52pm
 
 Finish time: 
 
