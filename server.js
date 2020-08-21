@@ -14,6 +14,7 @@ const MASTER_KEY = process.env.MASTER_API_KEY;
 const TRAIL_KEY = process.env.TRAIL_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const YELP_API_KEY = process.env.YELP_API_KEY;
+const MOVIE_API_KEY = process.env.MOVIE_API_KEY;
 
 
 //library that allows js to talk to pg
@@ -130,12 +131,21 @@ app.get('/yelp',(req, res) => {
 
 /****************************ROUTE FIVE */
 
-// app.get('/movies', getMovies);
-// function getMovies (req, res) {
-//   res.send();
-// }
-
-
+app.get('/movies', (req, res) => {
+  const movieSearch = req.query.search_query;
+  const movieApi = `https://api.themoviedb.org/3/movie/550?api_key=${movieSearch}`;
+  superagent.get(movieApi).set('Authorization', `Bearer ${MOVIE_API_KEY}`)
+    .then (movieSearchReturn => {
+      const movieArray = movieSearchReturn.body.movie.map( res => { //ask for help finding appropriate place to 
+        console.log(movieSearchReturn.body);
+        return new Movie (res);
+      });
+      res.send(movieArray);
+    })
+    .catch(error => {
+      res.status(500).send(error, 'Bad Request, Internal Server Error');
+    });
+});
 
 
 //Function to check the database for the location information
@@ -192,6 +202,16 @@ function Yelp(yelpData) {
   this.rating = yelpData.rating;
   this.price = yelpData.price;
   this.image_url = yelpData.image_url;
+}
+
+function Movie(movieData) {
+  this.title = movieData.title;
+  this.overview = movieData.overview;
+  this.average_votes = movieData.average_votes;
+  this.total_votes = movieData.total_votes;
+  this.image_url - movieData.image_url;
+  this.popularity = movieData.popularity;
+  this.released_on = movieData.released_on;
 }
 
 /*************************STARTSERVER*/
