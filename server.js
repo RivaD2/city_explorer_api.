@@ -37,37 +37,45 @@ app.get('/location',(req, res) => {
   //call database function here
   //if else statement here that would include the api
 
-
   // this function will return data from database or null
   // If response from database is not null, then we get a response, if null, nothing (falsy)
-  const responseFromDatabase = checkLocationInformation(thingToSearch);
-  if (responseFromDatabase) {
-    console.log(responseFromDatabase);
-    const storedResult = responseFromDatabase.rows[0];
-    res.send(storedResult);
-  } else {
-    superagent.get(apiLink)
-      .then(whateverComesBack => {
-        const superAgentResultArray = whateverComesBack.body;
-        const locationConstructor = new Location(superAgentResultArray, thingToSearch);
-        //need to save the information from API to database before responding
-        const sql = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES($1, $2, $3, $4)`;
-        const valuesofLocationObj = [locationConstructor.search_query, locationConstructor.formatted_query, locationConstructor.latitude, locationConstructor.longitude];
-        client.query(sql, valuesofLocationObj)
-        //don't want to send response until it is in the database
-          .then(()=>{
-            res.send(locationConstructor);
+  //const responseFromDatabase = checkLocationInformation(thingToSearch);
+
+  // telling our table we want everything back if it matches said city name
+  const sqlTable = `SELECT * FROM locations WHERE search_query='${thingToSearch}';`;
+  client.query(sqlTable)
+  //If the location record already exists in the database, send the location object in the response to the client.
+    .then(sendObj => {
+      //rowCount is built into SQL
+      if(sendObj.rowCount > 0) {
+        //want to return sendObject.rows[0] since Rows in the database in an arra
+        const storedResult = sendObj.rows[0];
+        res.send(storedResult);
+      } else {
+        superagent.get(apiLink)
+          .then(whateverComesBack => {
+            const superAgentResultArray = whateverComesBack.body;
+            const locationConstructor = new Location(superAgentResultArray, thingToSearch);
+            //need to save the information from API to database before responding
+            const sql = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES($1, $2, $3, $4)`;
+            const valuesofLocationObj = [locationConstructor.search_query, locationConstructor.formatted_query, locationConstructor.latitude, locationConstructor.longitude];
+            client.query(sql, valuesofLocationObj)
+            //don't want to send response until it is in the database
+              .then(()=>{
+                res.send(locationConstructor);
+              });
+
+          })
+          .catch(error => {
+            console.log(error);
+            res.status(500).send(error, 'Bad Request, Internal Server Error');
           });
-
-      })
-      .catch(error => {
-        console.log(error);
-        res.status(500).send(error, 'Bad Request, Internal Server Error');
-      });
-  }
-  client.query(thingToSearch); //with the object from the function call
+      }
+    })
+    .catch(error => {
+      console.error(error);
+    });
 });
-
 
 
 //catch happens after promise and only gets triggered if result of promise is error
@@ -117,9 +125,7 @@ app.get('/yelp',(req, res) => {
   // Credit to Amelia for the .set (Amelia helped to realize the header)
   superagent.get(yelpApi).set('Authorization', `Bearer ${YELP_API_KEY}`)
     .then(infoFromYelpReturn => {
-      console.log(searchToYelp);
       const yelpArray = infoFromYelpReturn.body.businesses.map( res => {
-        console.log(infoFromYelpReturn.body);
         return new Yelp(res);
       });
       res.send(yelpArray);
@@ -131,45 +137,25 @@ app.get('/yelp',(req, res) => {
 
 /****************************ROUTE FIVE */
 
-app.get('/movies', (req, res) => {
+app.get('/movies',(req, res) => {
   const movieSearch = req.query.search_query;
-  const movieApi = `https://api.themoviedb.org/3/movie/550?api_key=${movieSearch}`;
-  superagent.get(movieApi).set('Authorization', `Bearer ${MOVIE_API_KEY}`)
-    .then (movieSearchReturn => {
-      const movieArray = movieSearchReturn.body.movie.map( res => { //ask for help finding appropriate place to 
-        console.log(movieSearchReturn.body);
-        return new Movie (res);
+  console.log('starting movies route');
+  const movieApi = `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${movieSearch}`;
+  superagent.get(movieApi)
+    .then(movieSearchReturn => {
+      console.log('starting to process results');
+      console.log(movieSearchReturn);
+      const movieArray = movieSearchReturn.body.results.map( res => {
+        return new Movie(res);
+        //need INSERT INTO here?
       });
+      console.log('movie array',movieArray);
       res.send(movieArray);
     })
     .catch(error => {
       res.status(500).send(error, 'Bad Request, Internal Server Error');
     });
 });
-
-
-//Function to check the database for the location information
-
-function checkLocationInformation (str) {
-  console.log(str);
-  // telling our table we want everything back if it matches said city name
-  const sqlTable = `SELECT * FROM locations WHERE search_query='${str}';`;
-  client.query(sqlTable)
-  //If the location record already exists in the database, send the location object in the response to the client.
-    .then(sendObj => {
-      console.log(sendObj);
-      //rowCount is built into SQL
-      if(sendObj.rowCount > 0) {
-        //want to return sendObject.rows[0] since Rows in the database in an arra
-        return (sendObj.rows[0]);
-      } else {
-        return null;
-      }
-    })
-    .catch(error => {
-      console.error(error);
-    });
-}
 
 
 
