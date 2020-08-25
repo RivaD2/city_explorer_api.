@@ -26,7 +26,8 @@ dotenv, express, Heroku, Cors, Node.js and Github
 
 ## Change Log
 <!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
---------------------
+
+----------
 
 # Number and name of feature: Feature 1: Created two routes with method .get() and two constructor functions for location and weather
 
