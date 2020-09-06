@@ -24,8 +24,6 @@ This project required building a stand-alone back end which will interact with a
 ## Architecture
 dotenv, express, Heroku, Cors, Node.js and Github
 
-## Change Log
-<!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
 ----------
 
