@@ -17,10 +17,9 @@ const YELP_API_KEY = process.env.YELP_API_KEY;
 const MOVIE_API_KEY = process.env.MOVIE_API_KEY;
 
 
-//library that allows js to talk to pg
-// this will help us run commands back and forth to database
-// we created the client and we told the client to tell us when an error occurs
+
 app.use(cors());
+// we created the client and we told the client to tell us when an error occurs
 const client = new pg.Client(DATABASE_URL);
 client.on('error', error => console.error(error));
 
@@ -29,17 +28,11 @@ client.on('error', error => console.error(error));
 app.get('/location',(req, res) => {
   // The request parameter for endpoint's callback contains info from frontend in request.query
   // request.query contains all query info in any app
-  //console.log(request.query.city:request.query.city);
   const thingToSearch = req.query.city; // this would be the city
   const apiLink = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE}&q=${thingToSearch}&format=json`;
   //this will come from request.query so use api with $request.query.latitude
 
-  //call database function here
-  //if else statement here that would include the api
 
-  // this function will return data from database or null
-  // If response from database is not null, then we get a response, if null, nothing (falsy)
-  //const responseFromDatabase = checkLocationInformation(thingToSearch);
 
   // telling our table we want everything back if it matches said city name
   const sqlTable = `SELECT * FROM locations WHERE search_query='${thingToSearch}';`;
@@ -48,7 +41,7 @@ app.get('/location',(req, res) => {
     .then(sendObj => {
       //rowCount is built into SQL
       if(sendObj.rowCount > 0) {
-        //want to return sendObject.rows[0] since Rows in the database in an arra
+        //want to return sendObject.rows[0] since Rows in the database in an array
         const storedResult = sendObj.rows[0];
         res.send(storedResult);
       } else {
@@ -72,13 +65,12 @@ app.get('/location',(req, res) => {
           });
       }
     })
+    //catch happens after promise and only gets triggered if result of promise is error
     .catch(error => {
       console.error(error);
     });
 });
 
-
-//catch happens after promise and only gets triggered if result of promise is error
 
 /******************************ROUTE TWO*/
 
@@ -106,7 +98,6 @@ app.get('/trails', (req, res) => {
   const api = `https://www.hikingproject.com/data/get-trails?&lat=${latitude}&lon=${longitude}&maxDistance=10&key=${TRAIL_KEY}`;
   superagent.get(api)
     .then(dataReturn => {
-      // talk to TA about formatting and how to find body.trails (what is the best way to format the dataReturn.body);
       //we are passing individual items using maps, so I shouldn't use access notation on constructor (any constructors)
       const superAgentArrayTrail = dataReturn.body.trails.map(res => {
         return new Trail(res);
@@ -120,7 +111,8 @@ app.get('/trails', (req, res) => {
 
 /*********************************ROUTE FOUR */
 app.get('/yelp',(req, res) => {
-  const searchToYelp = req.query.search_query; // this would be the city
+  // this would be the city
+  const searchToYelp = req.query.search_query;
   const yelpApi = `https://api.yelp.com/v3/businesses/search?location=${searchToYelp}&start=20`;
   // Credit to Amelia for the .set (Amelia helped to realize the header)
   superagent.get(yelpApi).set('Authorization', `Bearer ${YELP_API_KEY}`)
@@ -139,17 +131,12 @@ app.get('/yelp',(req, res) => {
 
 app.get('/movies',(req, res) => {
   const movieSearch = req.query.search_query;
-  console.log('starting movies route');
   const movieApi = `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${movieSearch}`;
   superagent.get(movieApi)
     .then(movieSearchReturn => {
-      console.log('starting to process results');
-      console.log(movieSearchReturn);
       const movieArray = movieSearchReturn.body.results.map( res => {
         return new Movie(res);
-        //need INSERT INTO here?
       });
-      console.log('movie array',movieArray);
       res.send(movieArray);
     })
     .catch(error => {
@@ -159,13 +146,12 @@ app.get('/movies',(req, res) => {
 
 
 
-
 /*****************************CONSTRUCTORS*/
-
-function Location(obj, thingToSearch) { // our constructor only uses index 0
-  // LocationsIQ doesn't send back the searchQuery or what the user typed in
-  // we used thingToSearch which is what the customer typed in, and passed in through the constructor
-  this.search_query = thingToSearch; // how do we get this out of our location.json
+// our constructor only uses index 0
+// LocationsIQ doesn't send back the searchQuery or what the user typed in
+// we used thingToSearch which is what the customer typed in, and passed in through the constructor
+function Location(obj, thingToSearch) {
+  this.search_query = thingToSearch;
   this.formatted_query = obj[0].display_name;
   this.latitude = obj[0].lat;
   this.longitude = obj[0].lon;
@@ -201,9 +187,7 @@ function Movie(movieData) {
 }
 
 /*************************STARTSERVER*/
-//start the server and database
 // we need database to start first and then we can listen
-
 //Here we tell the client to make the connection to the database
 // Don't let express connect to port until client has connected to database
 client.connect()
@@ -213,8 +197,7 @@ client.connect()
 
 
 
-//function to handle errors from any API calls
-//HTTP status for response
+
 
 
 // function errorHandler (req, res) {
