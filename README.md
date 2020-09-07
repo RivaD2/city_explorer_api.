@@ -8,7 +8,7 @@
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview
-This project required building a stand-alone back end which will interact with a static front end. I requested data from a total of six third-party APIs, modified the data as needed, and sent the data to the client to be displayed in the browser. 
+This project required building a stand-alone back end which will interact with a static front end. I requested data from a total of four third-party APIs, modified the data as needed, and sent the data to the client to be displayed in the browser. I created an instance on Heroku as well.
 
 ## Getting Started
 // Creating a server
